@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Form, Icon, Input, Button, Checkbox,
+    Form, Icon, Input, Button, Checkbox, message,
 } from 'antd';
+import {API_ROOT} from "../constants"
 
 const FormItem = Form.Item;
 
@@ -12,6 +13,25 @@ class NormalLoginForm extends React.Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
+                fetch(`${API_ROOT}/login`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        username: values.username,
+                        password: values.password
+                    })
+                })
+                .then((response) => {
+                    if (response.ok) {
+                        return response;
+                    }
+                    throw new Error(response.statusText);
+                })
+                .then((response) => {
+                        message.success("Login success");
+                        // TO DO: handle login state change
+                    }
+                )
+                .catch((err) => message.error("Login Fail"))
             }
         });
     }
@@ -21,7 +41,7 @@ class NormalLoginForm extends React.Component {
         return (
             <Form onSubmit={this.handleSubmit} className="login-form">
                 <FormItem>
-                    {getFieldDecorator('userName', {
+                    {getFieldDecorator('username', {
                         rules: [{ required: true, message: 'Please input your username!' }],
                     })(
                         <Input prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Username" />
