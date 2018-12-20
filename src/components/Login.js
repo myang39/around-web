@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Form, Icon, Input, Button, Checkbox, message,
 } from 'antd';
-import {API_ROOT} from "../constants"
+import {API_ROOT} from "../constants";
 
 const FormItem = Form.Item;
 
