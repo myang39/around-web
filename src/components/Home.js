@@ -68,10 +68,17 @@ export class Home extends React.Component {
         throw new Error(response.statusText);
     }).then((response)=> {
       console.log('response', response);
-      this.setState({
-        isLoadingPosts: false,
-        posts: response
-      })
+      if (response == null) {
+        console.log('response is null');
+        this.setState({
+          isLoadingPosts: false
+        })
+      } else {
+        this.setState({
+          isLoadingPosts: false,
+          posts: response
+        })
+      }
     })
       .catch((error) => {
         this.setState({
@@ -92,6 +99,7 @@ export class Home extends React.Component {
       return <Spin tip="Loading posts..." />;
     }
 
+    // debugger;
     if (this.state.posts.length > 0) {
       const images=this.state.posts.map((post) =>({
         user: post.user,
