@@ -1,8 +1,10 @@
 import React from 'react';
+
 import { Tabs, Button, Spin } from 'antd';
 import {API_ROOT, TOKEN_KEY, AUTH_HEADER, POS_KEY, GEO_OPTIONS} from "../constants";
 import { Gallery } from './Gallery';
 import { CreatePostButton } from './CreatePostButton';
+import {AroundMap} from "./AroundMap"
 
 
 export const TabPane = Tabs.TabPane;
@@ -46,16 +48,17 @@ export class Home extends React.Component {
     })
   }
 
-  loadNearbyPosts = () => {
+  loadNearbyPosts = (center, radius) => {
     // TODO:
     // 1. read location: lat, lon
     // 2. request posts from API
     // 3. setState, put returned posts into state
-    const {lat, lon} = JSON.parse(localStorage.getItem(POS_KEY));
+    const {lat, lon} = center || JSON.parse(localStorage.getItem(POS_KEY));
+    const range = radius || 20;
     const token = localStorage.getItem(TOKEN_KEY);
     // console.log(lat, lon);
     this.setState({isLoadingPosts: true});
-    fetch(`${API_ROOT}/search?lat=${lat}&lon=${lon}&range=20000`,
+    fetch(`${API_ROOT}/search?lat=${lat}&lon=${lon}&range=${range}`,
       {
         method: 'GET',
         headers: {
@@ -102,7 +105,7 @@ export class Home extends React.Component {
     }
 
     // debugger;
-    if (this.state.posts.length > 0) {
+    if (this.state.posts && this.state.posts.length > 0) {
       const images=this.state.posts.map((post) =>({
         user: post.user,
         src: post.url,
@@ -121,8 +124,7 @@ export class Home extends React.Component {
   }
 
   render() {
-    console.log('state:', this.state);
-    const operations = <CreatePostButton/>;
+    const operations = <CreatePostButton loadNearbyPosts = {this.loadNearbyPosts}/>;
 
     return (
       <Tabs tabBarExtraContent={operations} className="main-tabs">
@@ -130,7 +132,15 @@ export class Home extends React.Component {
           {this.getImagePosts()}
         </TabPane>
         <TabPane tab="Map" key="2">
-          Content of Tab 2
+          <AroundMap
+            isMarkerShown
+            googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3CEh9DXuyjozqptVB5LA-dN7MxWWkr9s&v=3.exp&libraries=geometry,drawing,places"
+            loadingElement={<div style={{ height: `100%` }} />}
+            containerElement={<div style={{ height: `600px` }} />}
+            mapElement={<div style={{ height: `100%` }} />}
+            posts={this.state.posts}
+            loadNearbyPosts = {this.loadNearbyPosts}
+          />
         </TabPane>
       </Tabs>
     );

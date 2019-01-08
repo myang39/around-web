@@ -51,7 +51,7 @@ class NormalCreatePostForm extends React.Component {
           label="Image"
         >
           <div className="dropbox">
-            {getFieldDecorator('Image', {
+            {getFieldDecorator('image', {
               valuePropName: 'fileList',
               getValueFromEvent: this.normFile,
               rules: [{required: true, message: 'Please select an image'}]
