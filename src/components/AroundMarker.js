@@ -18,18 +18,20 @@ export class AroundMarker extends React.Component {
   }
   render() {
     const {user, location, message, url, type} = this.props.post;
+    const isImagePost = type === 'image';
     return (
       <Marker
         position={{ lat: location.lat, lng: location.lon }}
-        onMouseOver={this.toggleOpen}
-        onMouseOut={this.toggleOpen}
+        onMouseOver={isImagePost ? this.toggleOpen: undefined}
+        onMouseOut ={isImagePost ? this.toggleOpen: undefined}
+        onClick={!isImagePost ? this.toggleOpen : undefined}
       >
         {
           this.state.isOpen ?
             <InfoWindow onCloseClick={this.toggleOpen}>
               <div>
                 {
-                  type === "image" ? (
+                  isImagePost ? (
                     <img
                       alt={message}
                       src = {url}
