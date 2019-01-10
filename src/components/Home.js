@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Tabs, Button, Spin } from 'antd';
+import { Tabs, Spin, Row, Col } from 'antd';
 import {API_ROOT, TOKEN_KEY, AUTH_HEADER, POS_KEY, GEO_OPTIONS} from "../constants";
 import { Gallery } from './Gallery';
 import { CreatePostButton } from './CreatePostButton';
@@ -113,7 +113,21 @@ export class Home extends React.Component {
   }
 
     getVideoPosts = () => {
-      return <div>Video</div>;
+
+      return (
+        <Row gutter={32}>
+          {
+            this.state.posts
+              .filter((post) => post.type === "video")
+              .map((post) => (
+                <Col span={6} key={post.url}>
+                  <video src = {post.url} controls className="video-block"/>
+                  <p>{`${post.user} : ${post.message}`}</p>
+                </Col>
+                ))
+          }
+        </Row>
+      );
     }
 
     getImagePosts = () => {
