@@ -93,7 +93,7 @@ export class Home extends React.Component {
       });
   }
 
-  getImagePosts = () => {
+  getPanelContent = (type) => {
     if (this.state.error) {
       return <div>{this.state.error}</div>;
     }
@@ -106,32 +106,43 @@ export class Home extends React.Component {
 
     // debugger;
     if (this.state.posts && this.state.posts.length > 0) {
-      const images=this.state.posts.map((post) =>({
-        user: post.user,
-        src: post.url,
-        thumbnail: post.url,
-        caption: post.message,
-        thumbnailWidth: 400,
-        thumbnailHeight: 300
-        })
-      );
-      return <Gallery images={images}/>;
+      return type === "image" ? this.getImagePosts() : this.getVideoPosts();
     }
     return 'No nearby posts.';
 
-    // TODO: Render Posts from API
-
   }
+
+    getVideoPosts = () => {
+      return <div>Video</div>;
+    }
+
+    getImagePosts = () => {
+      const images=this.state.posts
+        .filter((post) => post.type === "image")
+        .map((post) =>({
+            user: post.user,
+            src: post.url,
+            thumbnail: post.url,
+            caption: post.message,
+            thumbnailWidth: 400,
+            thumbnailHeight: 300
+          })
+        );
+      return <Gallery images={images}/>;
+    }
 
   render() {
     const operations = <CreatePostButton loadNearbyPosts = {this.loadNearbyPosts}/>;
 
     return (
       <Tabs tabBarExtraContent={operations} className="main-tabs">
-        <TabPane tab="Posts" key="1">
-          {this.getImagePosts()}
+        <TabPane tab="Image Posts" key="1">
+          {this.getPanelContent("image")}
         </TabPane>
-        <TabPane tab="Map" key="2">
+        <TabPane tab="Video Posts" key="2">
+          {this.getPanelContent("video")}
+        </TabPane>
+        <TabPane tab="Map" key="3">
           <AroundMap
             isMarkerShown
             googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3CEh9DXuyjozqptVB5LA-dN7MxWWkr9s&v=3.exp&libraries=geometry,drawing,places"
