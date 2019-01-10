@@ -1,20 +1,23 @@
 import React from 'react';
 
-import { Tabs, Spin, Row, Col } from 'antd';
+import { Tabs, Spin, Row, Col, Radio} from 'antd';
 import {API_ROOT, TOKEN_KEY, AUTH_HEADER, POS_KEY, GEO_OPTIONS} from "../constants";
 import { Gallery } from './Gallery';
 import { CreatePostButton } from './CreatePostButton';
 import {AroundMap} from "./AroundMap"
 
 
-export const TabPane = Tabs.TabPane;
+
+const TabPane = Tabs.TabPane;
+const RadioGroup = Radio.Group;
 
 export class Home extends React.Component {
   state = {
     isLoadingGeoLocation: false,
     isLoadingPosts: false,
     error: '',
-    posts: []
+    posts: [],
+    topic: 'around'
   }
 
   componentDidMount() {
@@ -145,29 +148,90 @@ export class Home extends React.Component {
       return <Gallery images={images}/>;
     }
 
+    onTopicChange = (e) => {
+        const topic = e.target.value;
+        this.setState({topic});
+        this.updatePosts({topic});
+    }
+
+    loadFacesAroundTheWorld = () => {
+      const token = localStorage.getItem(TOKEN_KEY);
+      this.setState({isLoadingPosts: true});
+      fetch(`${API_ROOT}/cluster?term=face`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `${AUTH_HEADER} ${token}`
+          }
+        }
+      )
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw new Error(response.statusText);
+        })
+        .then((response)=> {
+          console.log('response', response);
+          if (response == null) {
+          console.log('response is null');
+          this.setState({
+            isLoadingPosts: false
+          })
+        } else {
+          this.setState({
+            isLoadingPosts: false,
+            posts: response
+          })
+        }
+      })
+        .catch((error) => {
+          this.setState({
+            isLoadingPosts: false,
+            error: error.message
+          })
+        });
+    }
+
+    updatePosts = ({topic, center, radius}) => {
+        topic = topic || this.state.topic;
+        if (topic === 'around') {
+          this.loadNearbyPosts(center, radius);
+        } else {
+          this.loadFacesAroundTheWorld();
+        }
+    }
+
+
   render() {
     const operations = <CreatePostButton loadNearbyPosts = {this.loadNearbyPosts}/>;
 
     return (
-      <Tabs tabBarExtraContent={operations} className="main-tabs">
-        <TabPane tab="Image Posts" key="1">
-          {this.getPanelContent("image")}
-        </TabPane>
-        <TabPane tab="Video Posts" key="2">
-          {this.getPanelContent("video")}
-        </TabPane>
-        <TabPane tab="Map" key="3">
-          <AroundMap
-            isMarkerShown
-            googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3CEh9DXuyjozqptVB5LA-dN7MxWWkr9s&v=3.exp&libraries=geometry,drawing,places"
-            loadingElement={<div style={{ height: `100%` }} />}
-            containerElement={<div style={{ height: `600px` }} />}
-            mapElement={<div style={{ height: `100%` }} />}
-            posts={this.state.posts}
-            loadNearbyPosts = {this.loadNearbyPosts}
-          />
-        </TabPane>
-      </Tabs>
+      <div>
+        <RadioGroup onChange={this.onTopicChange} value={this.state.topic}>
+          <Radio value ="around">Posts Around Me</Radio>
+          <Radio value ="face">Faces Around The World</Radio>
+        </RadioGroup>
+        <Tabs tabBarExtraContent={operations} className="main-tabs">
+          <TabPane tab="Image Posts" key="1">
+            {this.getPanelContent("image")}
+          </TabPane>
+          <TabPane tab="Video Posts" key="2">
+            {this.getPanelContent("video")}
+          </TabPane>
+          <TabPane tab="Map" key="3">
+            <AroundMap
+              isMarkerShown
+              googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3CEh9DXuyjozqptVB5LA-dN7MxWWkr9s&v=3.exp&libraries=geometry,drawing,places"
+              loadingElement={<div style={{ height: `100%` }} />}
+              containerElement={<div style={{ height: `600px` }} />}
+              mapElement={<div style={{ height: `100%` }} />}
+              posts={this.state.posts}
+              updatePosts={this.updatePosts}
+            />
+          </TabPane>
+        </Tabs>
+      </div>
     );
   }
 }
