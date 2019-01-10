@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Form, Icon, Input, Button, Checkbox, message,
+  Form, Icon, Input, Button, message,
 } from 'antd';
 import {API_ROOT} from "../constants";
 

@@ -208,7 +208,8 @@ export class Home extends React.Component {
 
     return (
       <div>
-        <RadioGroup onChange={this.onTopicChange} value={this.state.topic}>
+        <RadioGroup onChange={this.onTopicChange} value={this.state.topic}
+        className="topic-radio-group">
           <Radio value ="around">Posts Around Me</Radio>
           <Radio value ="face">Faces Around The World</Radio>
         </RadioGroup>
